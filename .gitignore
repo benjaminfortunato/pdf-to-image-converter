@@ -27,3 +27,16 @@ output/
 .vscode/*
 !.vscode/tasks.json
 .DS_Store
+
+# PyInstaller build artifacts
+build/
+dist/
+!PDF-to-Image-Converter.spec
+
+# Installer files
+installer/
+*.exe
+*.msi
+
+# Icon files (uncomment if you want to exclude icons)
+# *.ico
