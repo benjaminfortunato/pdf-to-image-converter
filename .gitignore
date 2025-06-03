@@ -1,0 +1,29 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Output images
+output/
+*.jpg
+*.jpeg
+*.png
+
+# Sample PDFs
+*.pdf
+
+# IDE specific files
+.idea/
+.vscode/*
+!.vscode/tasks.json
+.DS_Store
