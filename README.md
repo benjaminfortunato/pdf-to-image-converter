@@ -2,6 +2,13 @@
 
 A Python tool that converts multipage PDF files to high-quality images (JPG/PNG) with customizable resolution and output settings. Available as both a command-line script and a user-friendly GUI application.
 
+## ✨ Latest Updates
+
+- **🎨 Custom Icon**: Professional PDF-themed icon for Windows integration
+- **📦 Self-Contained Builds**: Embedded Poppler binaries - no external dependencies required
+- **🛡️ Antivirus Compatible**: Build process optimized for ESET and other antivirus software
+- **💻 GUI v2.0**: Enhanced interface with bundled dependency detection
+
 ## Two Ways to Use
 
 ### 🖥️ GUI Application (Recommended for Non-Technical Users)
@@ -115,8 +122,19 @@ python pdf_to_image_gui.py
 
 ### Building Standalone Executable
 
-Create a distributable .exe file for non-technical users:
+Choose between two build options:
 
+#### Self-Contained Build (Recommended for Distribution)
+```bash
+# Build with bundled Poppler (no external dependencies)
+build_with_poppler.bat
+```
+- ✅ Includes Poppler binaries (~50-100MB)
+- ✅ Works on any Windows machine
+- ✅ No external dependencies needed
+- ✅ Perfect for distribution to end users
+
+#### Standard Build (Smaller Size)
 ```bash
 # Install build dependencies
 pip install -r requirements.txt
@@ -127,6 +145,9 @@ build.bat
 # Or use PyInstaller directly
 pyinstaller PDF-to-Image-Converter.spec
 ```
+- ✅ Smaller file size (~20-30MB)
+- ❌ Requires Poppler to be installed separately
+- ❌ May show "poppler not found" errors
 
 The executable will be created in the `dist` folder and can be distributed without requiring Python installation.
 

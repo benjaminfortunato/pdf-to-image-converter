@@ -12,6 +12,27 @@ from pathlib import Path
 import FreeSimpleGUI as sg
 from pdf_to_image import convert_pdf_to_images, get_page_dimensions
 
+def get_poppler_path():
+    """Get the path to bundled Poppler or system Poppler"""
+    if getattr(sys, 'frozen', False):
+        # Running as PyInstaller bundle
+        bundle_dir = Path(sys._MEIPASS)
+        poppler_path = bundle_dir / "poppler" / "bin"
+        if poppler_path.exists():
+            return str(poppler_path)
+    
+    # Check if poppler is in the script directory (for development)
+    script_dir = Path(__file__).parent
+    local_poppler = script_dir / "poppler"
+    for item in local_poppler.iterdir() if local_poppler.exists() else []:
+        if item.is_dir() and "poppler" in item.name.lower():
+            bin_path = item / "Library" / "bin"
+            if bin_path.exists():
+                return str(bin_path)
+    
+    # Return None to use system PATH
+    return None
+
 # Set PySimpleGUI theme
 sg.theme('LightBlue3')
 
@@ -85,18 +106,38 @@ class PDFConverterGUI:
         """Create the main window"""
         layout = self.create_layout()
         
+        # Try to find the icon file
+        icon_path = None
+        if os.path.exists('pdf_to_image.ico'):
+            icon_path = 'pdf_to_image.ico'
+        elif getattr(sys, 'frozen', False):
+            # Check if icon is bundled in executable
+            bundle_dir = Path(sys._MEIPASS)
+            bundled_icon = bundle_dir / 'pdf_to_image.ico'
+            if bundled_icon.exists():
+                icon_path = str(bundled_icon)
+        
         self.window = sg.Window(
-            'PDF to Image Converter v1.0',
+            'PDF to Image Converter v2.0',
             layout,
             finalize=True,
             resizable=True,
-            icon=None,  # You can add an icon file path here
+            icon=icon_path,  # Use custom icon
             location=(100, 100)
         )
         
         # Set initial state
+          # Set initial state
         self.window['-OUTPUT_DIR-'].update(disabled=True)
         self.window.Element('-OUTPUT_DIR-').Widget.configure(state='disabled')
+          # Check and display Poppler status
+        poppler_path = get_poppler_path()
+        if poppler_path:
+            status_msg = "✓ Bundled Poppler detected - no external dependencies needed\n"
+        else:
+            status_msg = "ℹ Using system Poppler (must be installed separately)\n"
+        
+        self.window['-OUTPUT-'].update(status_msg)
         
     def validate_inputs(self, values):
         """Validate user inputs"""

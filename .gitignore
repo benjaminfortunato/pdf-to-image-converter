@@ -32,11 +32,16 @@ output/
 build/
 dist/
 !PDF-to-Image-Converter.spec
+!PDF-to-Image-Converter-with-Poppler.spec
+
+# Downloaded Poppler binaries
+poppler/
+*.zip
 
 # Installer files
 installer/
 *.exe
 *.msi
 
-# Icon files (uncomment if you want to exclude icons)
-# *.ico
+# Icon files (keep custom icon)
+!pdf_to_image.ico

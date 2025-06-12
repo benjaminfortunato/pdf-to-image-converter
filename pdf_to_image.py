@@ -1,12 +1,34 @@
 #!/usr/bin/env python
 # filepath: C:\Users\BenjaminFort_5rlaw0g\source\repos\utilities\pdf-to-image\pdf_to_image.py
 import os
+import sys
 import argparse
 import time
 from pathlib import Path
 from PyPDF2 import PdfReader
 from pdf2image import convert_from_path
 from pdf2image.exceptions import PDFPageCountError
+
+def get_poppler_path():
+    """Get the path to bundled Poppler or system Poppler"""
+    if getattr(sys, 'frozen', False):
+        # Running as PyInstaller bundle
+        bundle_dir = Path(sys._MEIPASS)
+        poppler_path = bundle_dir / "poppler" / "bin"
+        if poppler_path.exists():
+            return str(poppler_path)
+    
+    # Check if poppler is in the script directory (for development)
+    script_dir = Path(__file__).parent
+    local_poppler = script_dir / "poppler"
+    for item in local_poppler.iterdir() if local_poppler.exists() else []:
+        if item.is_dir() and "poppler" in item.name.lower():
+            bin_path = item / "Library" / "bin"
+            if bin_path.exists():
+                return str(bin_path)
+    
+    # Return None to use system PATH
+    return None
 
 
 def parse_arguments():
@@ -81,6 +103,9 @@ def convert_pdf_to_images(pdf_path, output_dir=None, dpi=150, format='jpg', over
     start_time = time.time()
     
     try:
+        # Get poppler path
+        poppler_path = get_poppler_path()
+        
         # Get PDF information
         pdf_reader = PdfReader(pdf_path)
         page_count = len(pdf_reader.pages)
@@ -99,6 +124,10 @@ def convert_pdf_to_images(pdf_path, output_dir=None, dpi=150, format='jpg', over
         print(f"Total pages: {page_count}")
         print(f"Format: {format}, DPI: {dpi}")
         print(f"Output directory: {output_directory}")
+        if poppler_path:
+            print(f"Using bundled Poppler: {poppler_path}")
+        else:
+            print("Using system Poppler")
         print(f"Processing in batches of {batch_size} pages")
         
         # Process pages in batches to conserve memory
@@ -106,16 +135,22 @@ def convert_pdf_to_images(pdf_path, output_dir=None, dpi=150, format='jpg', over
             batch_end = min(batch_start + batch_size, page_count)
             
             print(f"\nProcessing pages {batch_start + 1}-{batch_end} of {page_count}...")
-            
-            # Process a batch of pages
+              # Process a batch of pages
             try:
-                images = convert_from_path(
-                    pdf_path,
-                    dpi=dpi,
-                    first_page=batch_start + 1,
-                    last_page=batch_end,
-                    timeout=timeout
-                )
+                # Prepare conversion arguments
+                convert_args = {
+                    'pdf_path': pdf_path,
+                    'dpi': dpi,
+                    'first_page': batch_start + 1,
+                    'last_page': batch_end,
+                    'timeout': timeout
+                }
+                
+                # Add poppler path if available
+                if poppler_path:
+                    convert_args['poppler_path'] = poppler_path
+                
+                images = convert_from_path(**convert_args)
                 
                 # Save each image in the batch
                 for i, image in enumerate(images):
